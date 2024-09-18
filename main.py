@@ -17,6 +17,3 @@ def import_current_weather():
     request = requests.get(url, params=params)
 
     print(request.content)
-
-
-import_current_weather()
