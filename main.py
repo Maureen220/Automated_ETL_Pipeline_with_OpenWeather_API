@@ -4,16 +4,33 @@ import pandas as pd
 
 
 API_KEY = api_key
-DENVER_LAT = "39.7392"
-DENVER_LONG = "-104.9903"
+
+coordinates = {
+    "denver": {"lat": "39.7392", "long": "-104.9903"},
+    "salt lake city": {"lat": "40.7608", "long": "-111.8910"}
+}
 
 
 def import_current_weather():
-    url = f"https://api.openweathermap.org/data/2.5/weather?lat={DENVER_LAT}&lon={DENVER_LONG}&appid={API_KEY}"
-    params = {
-        "units": "imperial"
-    }
+    weather_data = []
 
-    request = requests.get(url, params=params)
+    for city in coordinates:
+        url = f"https://api.openweathermap.org/data/2.5/weather?lat={coordinates[city]['lat']}" \
+              f"&lon={coordinates[city]['long']}&appid={API_KEY}"
 
-    print(request.content)
+        params = {
+            "units": "imperial"
+        }
+
+        request = requests.get(url, params=params).json()
+
+        city_weather = request["main"]
+        city_weather["city"] = city
+
+        weather_data.append(city_weather)
+
+    df = pd.DataFrame(weather_data)
+    return df
+
+
+import_current_weather()

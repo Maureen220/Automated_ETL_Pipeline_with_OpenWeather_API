@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask
 
 from main import import_current_weather
 
@@ -11,8 +11,9 @@ def hello():
     return 'Hello World!'
 
 
-@app.route('/main')
+@app.route('/compare_cities')
 def current_weather():
+    """Runs the OpenWeather API to create a table for SLC and Denver"""
     import_current_weather()
     return 'OK', 200
 
