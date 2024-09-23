@@ -1,17 +1,27 @@
+from kafka import KafkaProducer
+import json
 import requests
 from config import api_key
 import pandas as pd
-
+import datetime
 
 API_KEY = api_key
-
-coordinates = {
-    "denver": {"lat": "39.7392", "long": "-104.9903"},
-    "salt lake city": {"lat": "40.7608", "long": "-111.8910"}
-}
+TODAY = str(datetime.datetime.today())
 
 
 def import_current_weather():
+    # API lat/long
+    coordinates = {
+        "denver": {"lat": "39.7392", "long": "-104.9903"},
+        "salt lake city": {"lat": "40.7608", "long": "-111.8910"}
+    }
+
+    # Kafka
+    producer = KafkaProducer(
+        bootstrap_servers='localhost:9092',
+        value_serializer=lambda v: json.dumps(v).encode('utf-8')
+    )
+
     weather_data = []
 
     for city in coordinates:
@@ -26,11 +36,12 @@ def import_current_weather():
 
         city_weather = request["main"]
         city_weather["city"] = city
+        city_weather["datetime"] = TODAY
 
         weather_data.append(city_weather)
 
+        # Send weather data to Kafka
+        producer.send('weather-data', city_weather)
+
     df = pd.DataFrame(weather_data)
-    return df
-
-
-import_current_weather()
+    print(df)
