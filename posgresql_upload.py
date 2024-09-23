@@ -9,9 +9,9 @@ def upload_to_db():
     consumer = KafkaConsumer(
         'weather-data',
         bootstrap_servers='localhost:9092',
-        auto_offset_reset='earliest',  # Start from the earliest message
-        enable_auto_commit=True,  # Automatically commit offsets
-        group_id='weather-consumer'  # Consumer group ID
+        auto_offset_reset='earliest',
+        enable_auto_commit=True,
+        group_id='weather-consumer'
     )
 
     # Connect to PostgreSQL
