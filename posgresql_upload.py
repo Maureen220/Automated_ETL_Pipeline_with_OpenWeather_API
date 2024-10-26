@@ -11,7 +11,8 @@ def upload_to_db():
         bootstrap_servers='localhost:9092',
         auto_offset_reset='earliest',
         enable_auto_commit=True,
-        group_id='weather-consumer'
+        group_id='weather-consumer',
+        consumer_timeout_ms=1000
     )
 
     # Connect to PostgreSQL
@@ -29,7 +30,7 @@ def upload_to_db():
         print(f"Received data: {weather_data}")
 
         # Insert to PostgreSQL
-        query = """INSERT INTO weather (datetime, city, temp, humidity, pressure) VALUES (%s, %s, %s, %s, %s)"""
+        query = """INSERT INTO weather_data (datetime, city, temp, humidity, pressure) VALUES (%s, %s, %s, %s, %s)"""
         values = (
             weather_data['datetime'],
             weather_data['city'],
