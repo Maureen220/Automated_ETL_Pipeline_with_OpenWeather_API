@@ -1,20 +1,9 @@
-from kafka import KafkaConsumer
-import json
 import psycopg2
+
 from config import postgresql_pwd
 
 
-def upload_to_db():
-    # KafkaConsumer
-    consumer = KafkaConsumer(
-        'weather-data',
-        bootstrap_servers='localhost:9092',
-        auto_offset_reset='earliest',
-        enable_auto_commit=True,
-        group_id='weather-consumer',
-        consumer_timeout_ms=1000
-    )
-
+def upload_to_db(weather_data):
     # Connect to PostgreSQL
     conn = psycopg2.connect(
         dbname="city_comparison",
@@ -24,19 +13,16 @@ def upload_to_db():
     )
     cur = conn.cursor()
 
-    # Kafka to PostgreSQL
-    for message in consumer:
-        weather_data = json.loads(message.value.decode('utf-8'))
-        print(f"Received data: {weather_data}")
-
-        # Insert to PostgreSQL
-        query = """INSERT INTO weather_data (datetime, city, temp, humidity, pressure) VALUES (%s, %s, %s, %s, %s)"""
+    # Insert to PostgreSQL
+    for data in weather_data:
+        query = """INSERT INTO denver_and_slc_comparison 
+                    (datetime, city, temp, humidity, pressure) VALUES (%s, %s, %s, %s, %s)"""
         values = (
-            weather_data['datetime'],
-            weather_data['city'],
-            weather_data['temp'],
-            weather_data['humidity'],
-            weather_data['pressure'])
+            data['datetime'],
+            data['city'],
+            data['temp'],
+            data['humidity'],
+            data['pressure'])
         cur.execute(query, values)
 
         # Commit

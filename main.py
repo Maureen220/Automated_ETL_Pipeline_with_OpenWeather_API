@@ -1,9 +1,10 @@
-from kafka import KafkaProducer
-import json
-import requests
-from config import api_key
-import pandas as pd
 import datetime
+
+import pandas as pd
+import requests
+
+from config import api_key
+from posgresql_upload import upload_to_db
 
 API_KEY = api_key
 TODAY = str(datetime.datetime.today())
@@ -15,12 +16,6 @@ def import_current_weather():
         "denver": {"lat": "39.7392", "long": "-104.9903"},
         "salt lake city": {"lat": "40.7608", "long": "-111.8910"}
     }
-
-    # Kafka
-    producer = KafkaProducer(
-        bootstrap_servers='localhost:9092',
-        value_serializer=lambda v: json.dumps(v).encode('utf-8')
-    )
 
     weather_data = []
 
@@ -40,8 +35,6 @@ def import_current_weather():
 
         weather_data.append(city_weather)
 
-        # Send weather data to Kafka
-        producer.send('weather-data', city_weather)
+    print(weather_data)
 
-    df = pd.DataFrame(weather_data)
-    print(df)
+    upload_to_db(weather_data)

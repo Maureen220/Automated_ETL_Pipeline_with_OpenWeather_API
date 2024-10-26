@@ -12,17 +12,10 @@ def hello():
     return 'Hello World!'
 
 
-@app.route('/compare_cities')
+@app.route('/import_weather')
 def current_weather():
     """Runs the OpenWeather API to create a table for SLC and Denver"""
     import_current_weather()
-    return 'OK', 200
-
-
-@app.route('/db_upload')
-def data_db_upload():
-    """Uploads to PostgreSQL"""
-    upload_to_db()
     return 'OK', 200
 
 
