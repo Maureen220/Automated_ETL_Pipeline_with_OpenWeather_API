@@ -1,7 +1,6 @@
 from flask import Flask
 
 from main import import_current_weather
-from posgresql_upload import upload_to_db
 
 app = Flask('OpenWeather_API')
 

@@ -1,6 +1,5 @@
 import datetime
 
-import pandas as pd
 import requests
 
 from config import api_key
