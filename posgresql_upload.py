@@ -1,6 +1,17 @@
 import psycopg2
 
-from config import postgresql_pwd
+from google.cloud import secretmanager
+
+
+def get_secret(secret_name):
+    client = secretmanager.SecretManagerServiceClient()
+    name = f"projects/weather-data-439820/secrets/{secret_name}/versions/latest"
+    response = client.access_secret_version(name=name)
+    secret = response.payload.data.decode("UTF-8")
+    return secret
+
+
+postgresql_pwd = get_secret("db_password")
 
 
 def upload_to_db(weather_data):

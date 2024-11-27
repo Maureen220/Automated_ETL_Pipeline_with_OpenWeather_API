@@ -2,11 +2,20 @@ import datetime
 
 import requests
 
-from config import api_key
+from google.cloud import secretmanager
 from posgresql_upload import upload_to_db
 
-API_KEY = api_key
-TODAY = str(datetime.datetime.today())
+
+def get_secret(secret_name):
+    client = secretmanager.SecretManagerServiceClient()
+    name = f"projects/weather-data-439820/secrets/{secret_name}/versions/latest"
+    response = client.access_secret_version(name=name)
+    secret = response.payload.data.decode("UTF-8")
+    return secret
+
+
+api_key = get_secret("weather_api_key")
+today = str(datetime.datetime.today())
 
 
 def import_current_weather():
@@ -20,7 +29,7 @@ def import_current_weather():
 
     for city in coordinates:
         url = f"https://api.openweathermap.org/data/2.5/weather?lat={coordinates[city]['lat']}" \
-              f"&lon={coordinates[city]['long']}&appid={API_KEY}"
+              f"&lon={coordinates[city]['long']}&appid={api_key}"
 
         params = {
             "units": "imperial"
@@ -30,10 +39,9 @@ def import_current_weather():
 
         city_weather = request["main"]
         city_weather["city"] = city
-        city_weather["datetime"] = TODAY
+        city_weather["datetime"] = today
 
         weather_data.append(city_weather)
 
     print(weather_data)
-
     upload_to_db(weather_data)
